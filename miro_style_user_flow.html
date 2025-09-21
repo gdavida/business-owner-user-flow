@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Business Owner User Flow</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 40px 20px;
+            background: #f8f9fa;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .header h1 {
+            font-size: 2.2em;
+            color: #2d3748;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            color: #718096;
+            font-size: 1.1em;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+        
+        .view-button {
+            padding: 10px 20px;
+            border: 2px solid #e2e8f0;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 500;
+            color: #4a5568;
+        }
+        
+        .view-button:hover {
+            border-color: #4299e1;
+            color: #4299e1;
+        }
+        
+        .view-button.active {
+            background: #4299e1;
+            border-color: #4299e1;
+            color: white;
+        }
+        
+        .flow-canvas {
+            background: white;
+            border-radius: 12px;
+            padding: 40px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            overflow-x: auto;
+            min-height: 600px;
+        }
+        
+        .flow-section {
+            margin-bottom: 60px;
+        }
+        
+        .section-title {
+            font-size: 1.1em;
+            font-weight: 600;
+            color: #2d3748;
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 8px 16px;
+            background: #edf2f7;
+            border-radius: 20px;
+            display: inline-block;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        
+        .flow-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+        
+        .flow-box {
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 20px;
+            min-width: 200px;
+            max-width: 250px;
+            text-align: center;
+            position: relative;
+            transition: all 0.2s;
+        }
+        
+        .flow-box:hover {
+            border-color: #4299e1;
+            box-shadow: 0 4px 12px rgba(66, 153, 225, 0.15);
+        }
+        
+        .flow-box.entry-point {
+            border-color: #48bb78;
+            background: #f0fff4;
+        }
+        
+        .flow-box.decision {
+            border-color: #ed8936;
+            background: #fffaf0;
+            border-radius: 50px;
+        }
+        
+        .flow-box.action {
+            border-color: #4299e1;
+            background: #ebf8ff;
+        }
+        
+        .flow-box.success {
+            border-color: #9f7aea;
+            background: #faf5ff;
+        }
+        
+        .flow-box.phase2 {
+            border-color: #f56565;
+            background: #fed7d7;
+        }
+        
+        .box-title {
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 8px;
+            font-size: 0.95em;
+        }
+        
+        .box-subtitle {
+            font-size: 0.8em;
+            color: #718096;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .box-description {
+            font-size: 0.85em;
+            color: #4a5568;
+            line-height: 1.4;
+        }
+        
+        .arrow {
+            width: 0;
+            height: 0;
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            border-top: 12px solid #a0aec0;
+            margin: 0 auto;
+        }
+        
+        .arrow.right {
+            width: 0;
+            height: 0;
+            border-top: 8px solid transparent;
+            border-bottom: 8px solid transparent;
+            border-left: 12px solid #a0aec0;
+            margin: 0;
+        }
+        
+        .connector {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #a0aec0;
+            font-size: 0.8em;
+            font-weight: 500;
+        }
+        
+        .flow-path {
+            display: none;
+        }
+        
+        .flow-path.active {
+            display: block;
+        }
+        
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 40px;
+            flex-wrap: wrap;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85em;
+            color: #4a5568;
+        }
+        
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 3px;
+            border: 2px solid;
+        }
+        
+        .or-split {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .or-label {
+            background: #edf2f7;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            color: #4a5568;
+            font-weight: 500;
+        }
+        
+        @media (max-width: 768px) {
+            .flow-row {
+                flex-direction: column;
+                gap: 20px;
+            }
+            
+            .connector {
+                transform: rotate(90deg);
+            }
+            
+            .arrow.right {
+                transform: rotate(90deg);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Business Owner User Flow</h1>
+            <p>Journey from initial contact to enhanced directory listing</p>
+        </div>
+        
+        <div class="controls">
+            <button class="view-button active" onclick="showView('complete')">Complete Journey</button>
+            <button class="view-button" onclick="showView('phase1')">Phase 1: Remote Outreach</button>
+            <button class="view-button" onclick="showView('phase2')">Phase 2: Physical Escalation</button>
+            <button class="view-button" onclick="showView('enhancement')">Enhancement Path</button>
+        </div>
+        
+        <div class="flow-canvas">
+            
+            <!-- Complete Journey View -->
+            <div id="complete-view" class="flow-path active">
+                
+                <div class="flow-section">
+                    <div class="section-title">INITIAL CONTACT</div>
+                    <div class="flow-row">
+                        <div class="flow-box entry-point">
+                            <div class="box-subtitle">Mass Outreach</div>
+                            <div class="box-title">Newsletter/Email Blast</div>
+                            <div class="box-description">"Join our business directory"</div>
+                        </div>
+                        
+                        <div class="flow-box entry-point">
+                            <div class="box-subtitle">Personal Outreach</div>
+                            <div class="box-title">Champion Phone Call</div>
+                            <div class="box-description">"Hi Sarah, calling about directory"</div>
+                        </div>
+                        
+                        <div class="flow-box entry-point">
+                            <div class="box-subtitle">Word of Mouth</div>
+                            <div class="box-title">Peer Recommendation</div>
+                            <div class="box-description">"You should join - I got customers"</div>
+                        </div>
+                        
+                        <div class="flow-box entry-point">
+                            <div class="box-subtitle">Self Discovery</div>
+                            <div class="box-title">Finds Directory Online</div>
+                            <div class="box-description">Sees competitors listed</div>
+                        </div>
+                    </div>
+                    <div class="connector">
+                        <div class="arrow"></div>
+                    </div>
+                </div>
+                
+                <div class="flow-section">
+                    <div class="section-title">EVALUATION</div>
+                    <div class="flow-row">
+                        <div class="flow-box decision">
+                            <div class="box-title">Is this worth my time?</div>
+                            <div class="box-description">Business owner evaluates legitimacy, time investment, potential benefit</div>
+                        </div>
+                    </div>
+                    <div class="connector">
+                        <div class="arrow"></div>
+                    </div>
+                </div>
+                
+                <div class="flow-section">
+                    <div class="section-title">DECISION POINT</div>
+                    <div class="flow-row">
+                        <div class="flow-box action">
+                            <div class="box-title">Yes - Proceed</div>
+                            <div class="box-description">Clicks link or agrees during call</div>
+                        </div>
+                        
+                        <div class="or-split">
+                            <div class="or-label">OR</div>
+                        </div>
+                        
+                        <div class="flow-box phase2">
+                            <div class="box-title">Maybe Later</div>
+                            <div class="box-description">Needs Phase 2 follow-up</div>
+                        </div>
+                    </div>
+                    <div class="connector">
+                        <div class="arrow"></div>
+                    </div>
+                </div>
+                
+                <div class="flow-section">
+                    <div class="section-title">FORM COMPLETION</div>
+                    <div class="flow-row">
+                        <div class="flow-box action">
+                            <div class="box-title">Fill Basic Form</div>
+                            <div class="box-description">Name, address, phone, hours, 1 photo, short description</div>
+                        </div>
+                    </div>
+                    <div class="connector">
+                        <div class="arrow"></div>
+                    </div>
+                </div>
+                
+                <div class="flow-section">
+                    <div class="section-title">INITIAL SUCCESS</div>
+                    <div class="flow-row">
+                        <div class="flow-box success">
+                            <div class="box-title">Basic Page Goes Live</div>
+                            <div class="box-description">Professional listing with core info, immediately findable</div>
+                        </div>
+                    </div>
+                    <div class="connector">
+                        <div class="arrow"></div>
+                    </div>
+                </div>
+                
+                <div class="flow-section">
+                    <div class="section-title">ENHANCEMENT JOURNEY</div>
+                    <div class="flow-row">
+                        <div class="flow-box action">
+                            <div class="box-title">Gentle Enhancement Prompts</div>
+                            <div class="box-description">Email nudges: "Add photos", "Include offers"</div>
+                        </div>
+                        
+                        <div class="connector">
+                            <div class="arrow right"></div>
+                        </div>
+                        
+                        <div class="flow-box success">
+                            <div class="box-title">Enhanced Profile</div>
+                            <div class="box-description">Full gallery, detailed info, special offers, events</div>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+            
+            <!-- Phase 1 View -->
+            <div id="phase1-view" class="flow-path">
+                
+                <div class="flow-section">
+                    <div class="section-title">PHASE 1: REMOTE OUTREACH METHODS</div>
+                    <div class="flow-row">
+                        <div class="flow-box entry-point">
+                            <div class="box-subtitle">Mass Outreach</div>
+                            <div class="box-title">Newsletter/Email/Facebook</div>
+                            <div class="box-description">Low engagement, reaches early adopters</div>
+                        </div>
+                        
+                        <div class="flow-box entry-point">
+                            <div class="box-subtitle">Personal Outreach</div>
+                            <div class="box-title">Individual Phone Calls</div>
+                            <div class="box-description">High engagement, builds relationships</div>
+                        </div>
+                    </div>
+                    <div class="connector">
+                        <div class="arrow"></div>
+                    </div>
+                </div>
+                
+                <div class="flow-section">
+                    <div class="section-title">PSYCHOLOGY</div>
+                    <div class="flow-row">
+                        <div class="flow-box decision">
+                            <div class="box-title">Mass: "I'll look later"</div>
+                            <div class="box-description">Easy to ignore, no urgency</div>
+                        </div>
+                        
+                        <div class="flow-box decision">
+                            <div class="box-title">Personal: "This seems important"</div>
+                            <div class="box-description">Immediate Q&A, relationship trust</div>
+                        </div>
+                    </div>
+                    <div class="connector">
+                        <div class="arrow"></div>
+                    </div>
+                </div>
+                
+                <div class="flow-section">
+                    <div class="section-title">OUTCOME</div>
+                    <div class="flow-row">
+                        <div class="flow-box action">
+                            <div class="box-title">Form Completion</div>
+                            <div class="box-description">Self-motivated completion or with Champion support</div>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+            
+            <!-- Phase 2 View -->
+            <div id="phase2-view" class="flow-path">
+                
+                <div class="flow-section">
+                    <div class="section-title">PHASE 2: PHYSICAL ESCALATION (When Phase 1 insufficient)</div>
+                    <div class="flow-row">
+                        <div class="flow-box phase2">
+                            <div class="box-subtitle">Physical Visit</div>
+                            <div class="box-title">Champion Visits In-Person</div>
+                            <div class="box-description">Maximum urgency, immediate completion</div>
+                        </div>
+                        
+                        <div class="flow-box phase2">
+                            <div class="box-subtitle">Direct Mail</div>
+                            <div class="box-title">Professional Mailer + QR</div>
+                            <div class="box-description">Physical presence, official feel</div>
+                        </div>
+                    </div>
+                    <div class="connector">
+                        <div class="arrow"></div>
+                    </div>
+                </div>
+                
+                <div class="flow-section">
+                    <div class="section-title">PSYCHOLOGY</div>
+                    <div class="flow-row">
+                        <div class="flow-box decision">
+                            <div class="box-title">Visit: "Hard to say no"</div>
+                            <div class="box-description">Physical presence, immediate help</div>
+                        </div>
+                        
+                        <div class="flow-box decision">
+                            <div class="box-title">Mail: "Looks official"</div>
+                            <div class="box-description">Investment implied, professional</div>
+                        </div>
+                    </div>
+                    <div class="connector">
+                        <div class="arrow"></div>
+                    </div>
+                </div>
+                
+                <div class="flow-section">
+                    <div class="section-title">ADVANTAGE</div>
+                    <div class="flow-row">
+                        <div class="flow-box success">
+                            <div class="box-title">Higher Conversion</div>
+                            <div class="box-description">Captures businesses that ignored Phase 1</div>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+            
+            <!-- Enhancement View -->
+            <div id="enhancement-view" class="flow-path">
+                
+                <div class="flow-section">
+                    <div class="section-title">STARTING POINT</div>
+                    <div class="flow-row">
+                        <div class="flow-box success">
+                            <div class="box-title">Basic Page Live</div>
+                            <div class="box-description">Business has working directory listing</div>
+                        </div>
+                    </div>
+                    <div class="connector">
+                        <div class="arrow"></div>
+                    </div>
+                </div>
+                
+                <div class="flow-section">
+                    <div class="section-title">PROOF OF VALUE</div>
+                    <div class="flow-row">
+                        <div class="flow-box action">
+                            <div class="box-title">Early Results</div>
+                            <div class="box-description">"A customer found me through the directory"</div>
+                        </div>
+                    </div>
+                    <div class="connector">
+                        <div class="arrow"></div>
+                    </div>
+                </div>
+                
+                <div class="flow-section">
+                    <div class="section-title">ENHANCEMENT PROMPTS</div>
+                    <div class="flow-row">
+                        <div class="flow-box action">
+                            <div class="box-title">Gentle Email Nudges</div>
+                            <div class="box-description">"Add more photos to showcase your business"</div>
+                        </div>
+                        
+                        <div class="flow-box action">
+                            <div class="box-title">Success Story Sharing</div>
+                            <div class="box-description">"See how [Business] enhanced their listing"</div>
+                        </div>
+                    </div>
+                    <div class="connector">
+                        <div class="arrow"></div>
+                    </div>
+                </div>
+                
+                <div class="flow-section">
+                    <div class="section-title">ENHANCEMENT DECISION</div>
+                    <div class="flow-row">
+                        <div class="flow-box decision">
+                            <div class="box-title">Worth the time investment?</div>
+                            <div class="box-description">Business owner weighs proven value vs. time cost</div>
+                        </div>
+                    </div>
+                    <div class="connector">
+                        <div class="arrow"></div>
+                    </div>
+                </div>
+                
+                <div class="flow-section">
+                    <div class="section-title">ENHANCED SUCCESS</div>
+                    <div class="flow-row">
+                        <div class="flow-box success">
+                            <div class="box-title">Full-Featured Profile</div>
+                            <div class="box-description">Photo gallery, detailed info, offers, events, reviews</div>
+                        </div>
+                        
+                        <div class="connector">
+                            <div class="arrow right"></div>
+                        </div>
+                        
+                        <div class="flow-box success">
+                            <div class="box-title">Strong Advocate</div>
+                            <div class="box-description">Refers other businesses, provides testimonials</div>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+            
+        </div>
+        
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-color" style="border-color: #48bb78; background: #f0fff4;"></div>
+                Entry Points
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="border-color: #ed8936; background: #fffaf0;"></div>
+                Decision Points
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="border-color: #4299e1; background: #ebf8ff;"></div>
+                Actions
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="border-color: #9f7aea; background: #faf5ff;"></div>
+                Success States
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="border-color: #f56565; background: #fed7d7;"></div>
+                Phase 2 Escalation
+            </div>
+        </div>
+        
+    </div>
+    
+    <script>
+        function showView(viewType) {
+            // Hide all views
+            const views = document.querySelectorAll('.flow-path');
+            views.forEach(view => view.classList.remove('active'));
+            
+            // Reset all buttons
+            const buttons = document.querySelectorAll('.view-button');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            
+            // Show selected view
+            document.getElementById(viewType + '-view').classList.add('active');
+            
+            // Activate clicked button
+            event.target.classList.add('active');
+        }
+    </script>
+</body>
+</html>
