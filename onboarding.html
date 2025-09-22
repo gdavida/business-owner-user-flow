@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Business Journey: Mass vs Personal Outreach</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .controls {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .path-button {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 2px solid rgba(255,255,255,0.3);
+            padding: 10px 20px;
+            margin: 0 10px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            font-weight: 500;
+        }
+        
+        .path-button:hover {
+            background: rgba(255,255,255,0.9);
+            color: #667eea;
+            border-color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        
+        .path-button.active {
+            background: rgba(255,255,255,0.9);
+            color: #667eea;
+            border-color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        
+        .phase-button {
+            font-size: 1.1em;
+            padding: 12px 24px;
+            margin: 0 15px;
+            font-weight: bold;
+        }
+        
+        .phase-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+            filter: brightness(1.1);
+        }
+        
+        .phase-button.active {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+            filter: brightness(1.1);
+        }
+        
+        .flowchart {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+        
+        .flow-level {
+            display: flex;
+            justify-content: center;
+            margin: 30px 0;
+            gap: 25px;
+            flex-wrap: wrap;
+        }
+        
+        .flow-node {
+            background: rgba(255,255,255,0.95);
+            border-radius: 15px;
+            padding: 20px;
+            min-width: 280px;
+            max-width: 320px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            backdrop-filter: blur(10px);
+            text-align: left;
+            position: relative;
+            transition: all 0.3s ease;
+            opacity: 0.3;
+        }
+        
+        .flow-node.active-path {
+            opacity: 1;
+            transform: scale(1.02);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+        
+        .flow-node.mass-outreach {
+            border-left: 6px solid #3498db;
+        }
+        
+        .flow-node.personal-outreach {
+            border-left: 6px solid #4ecdc4;
+        }
+        
+        .flow-node.word-of-mouth {
+            border-left: 6px solid #ffa726;
+        }
+        
+        .flow-node.self-discovery {
+            border-left: 6px solid #ab47bc;
+        }
+        
+        .flow-node.physical-visits {
+            border-left: 6px solid #f39c12;
+        }
+        
+        .flow-node.direct-mail {
+            border-left: 6px solid #e67e22;
+        }
+        
+        .phase-controls {
+            transition: opacity 0.3s ease;
+        }
+        
+        .node-type {
+            color: white;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.8em;
+            font-weight: bold;
+            display: inline-block;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+        }
+        
+        .node-type.mass { background: linear-gradient(135deg, #3498db, #2980b9); }
+        .node-type.personal { background: linear-gradient(135deg, #4ecdc4, #44bd87); }
+        .node-type.word { background: linear-gradient(135deg, #ffa726, #fb8c00); }
+        .node-type.self { background: linear-gradient(135deg, #ab47bc, #8e24aa); }
+        .node-type.psychology { background: linear-gradient(135deg, #6c5ce7, #a29bfe); }
+        .node-type.action { background: linear-gradient(135deg, #42a5f5, #1e88e5); }
+        .node-type.friction { background: linear-gradient(135deg, #ef5350, #e53935); }
+        .node-type.success { background: linear-gradient(135deg, #66bb6a, #4caf50); }
+        .node-type.outcome { background: linear-gradient(135deg, #78909c, #546e7a); }
+        
+        .node-title {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #2d3748;
+            margin-bottom: 12px;
+        }
+        
+        .node-description {
+            color: #4a5568;
+            font-size: 0.85em;
+            line-height: 1.4;
+            margin-bottom: 12px;
+        }
+        
+        .emotion-box, .pain-point, .success-point {
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+        
+        .emotion-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 8px 12px;
+            margin: 10px 0;
+            border-radius: 0 6px 6px 0;
+            font-style: italic;
+            font-size: 0.8em;
+            color: #856404;
+        }
+        
+        .pain-point {
+            background: #f8d7da;
+            border-left: 4px solid #dc3545;
+            padding: 8px 12px;
+            margin: 10px 0;
+            border-radius: 0 6px 6px 0;
+            font-size: 0.8em;
+            color: #721c24;
+        }
+        
+        .success-point {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+            padding: 8px 12px;
+            margin: 10px 0;
+            border-radius: 0 6px 6px 0;
+            font-size: 0.8em;
+            color: #155724;
+        }
+        
+        .hide-details .emotion-box,
+        .hide-details .pain-point,
+        .hide-details .success-point {
+            max-height: 0;
+            padding-top: 0;
+            padding-bottom: 0;
+            margin-top: 0;
+            margin-bottom: 0;
+            opacity: 0;
+        }
+        
+        .conversion-rate {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.7em;
+            font-weight: bold;
+        }
+        
+        .mass-outreach .conversion-rate {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+        }
+        
+        .personal-outreach .conversion-rate {
+            background: linear-gradient(135deg, #4ecdc4, #44bd87);
+        }
+        
+        .word-of-mouth .conversion-rate {
+            background: linear-gradient(135deg, #ffa726, #fb8c00);
+        }
+        
+        .self-discovery .conversion-rate {
+            background: linear-gradient(135deg, #ab47bc, #8e24aa);
+        }
+        
+        .path-info {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            color: white;
+            display: none;
+        }
+        
+        .path-info.active {
+            display: block;
+        }
+        
+        .comparison-stats {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            margin: 30px 0;
+            color: white;
+        }
+        
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-top: 20px;
+        }
+        
+        .comparison-column {
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 12px;
+        }
+        
+        .comparison-column h4 {
+            margin-top: 0;
+            font-size: 1.3em;
+            margin-bottom: 15px;
+        }
+        
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 10px 0;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .phase-divider {
+            width: 100%;
+            height: 2px;
+            background: rgba(255,255,255,0.3);
+            margin: 40px 0;
+            position: relative;
+        }
+        
+        .phase-label {
+            position: absolute;
+            left: 50%;
+            top: -15px;
+            transform: translateX(-50%);
+            background: rgba(255,255,255,0.2);
+            color: white;
+            padding: 5px 20px;
+            border-radius: 15px;
+            font-weight: bold;
+            backdrop-filter: blur(10px);
+        }
+        
+        @media screen and (max-width: 768px) {
+            .flow-level {
+                flex-direction: column;
+                align-items: center;
+                gap: 20px;
+            }
+            
+            .flow-node {
+                min-width: 300px;
+                max-width: 350px;
+            }
+            
+            .comparison-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Business Journey: Outreach Strategy Impact</h1>
+            <p>How mass vs. personal outreach creates completely different conversion paths</p>
+        </div>
+        
+        <div class="controls">
+            <div style="margin-bottom: 20px;">
+                <button class="path-button phase-button active" onclick="showAllPhases(this)" style="background: linear-gradient(135deg, #2c3e50, #34495e); border: 2px solid #34495e; color: white;">Show All Phases</button>
+                <button class="path-button phase-button" onclick="showPhase('phase1', this)" style="background: linear-gradient(135deg, #4a90e2, #357abd); border: 2px solid #357abd; color: white;">Phase 1 Only</button>
+                <button class="path-button phase-button" onclick="showPhase('phase2', this)" style="background: linear-gradient(135deg, #f39c12, #e67e22); border: 2px solid #e67e22; color: white;">Phase 2 Only</button>
+            </div>
+            
+            <div id="all-phases-controls" class="phase-controls">
+                <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 12px; margin-bottom: 15px;">
+                    <div style="color: white; font-size: 0.9em; margin-bottom: 10px; opacity: 0.8;">Filter specific paths (all phases):</div>
+                    <div style="display: flex; justify-content: center; gap: 20px; flex-wrap: wrap;">
+                        <label style="color: white; display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.9em;">
+                            <input type="checkbox" checked onchange="togglePath('mass-outreach', this)" style="transform: scale(1.1);">
+                            Mass Outreach
+                        </label>
+                        <label style="color: white; display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.9em;">
+                            <input type="checkbox" checked onchange="togglePath('personal-outreach', this)" style="transform: scale(1.1);">
+                            Personal Outreach
+                        </label>
+                        <label style="color: white; display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.9em;">
+                            <input type="checkbox" checked onchange="togglePath('word-of-mouth', this)" style="transform: scale(1.1);">
+                            Word of Mouth
+                        </label>
+                        <label style="color: white; display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.9em;">
+                            <input type="checkbox" checked onchange="togglePath('self-discovery', this)" style="transform: scale(1.1);">
+                            Self Discovery
+                        </label>
+                        <label style="color: white; display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.9em;">
+                            <input type="checkbox" checked onchange="togglePath('physical-visits', this)" style="transform: scale(1.1);">
+                            In-Person Visits
+                        </label>
+                        <label style="color: white; display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.9em;">
+                            <input type="checkbox" checked onchange="togglePath('direct-mail', this)" style="transform: scale(1.1);">
+                            Direct Mail
+                        </label>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="phase1-controls" class="phase-controls" style="display: none;">
+                <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 12px; margin-bottom: 15px;">
+                    <div style="color: white; font-size: 0.9em; margin-bottom: 10px; opacity: 0.8;">Filter Phase 1 paths:</div>
+                    <div style="display: flex; justify-content: center; gap: 20px; flex-wrap: wrap;">
+                        <label style="color: white; display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.9em;">
+                            <input type="checkbox" checked onchange="togglePath('mass-outreach', this)" style="transform: scale(1.1);">
+                            Mass Outreach
+                        </label>
+                        <label style="color: white; display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.9em;">
+                            <input type="checkbox" checked onchange="togglePath('personal-outreach', this)" style="transform: scale(1.1);">
+                            Personal Outreach
+                        </label>
+                        <label style="color: white; display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.9em;">
+                            <input type="checkbox" checked onchange="togglePath('word-of-mouth', this)" style="transform: scale(1.1);">
+                            Word of Mouth
+                        </label>
+                        <label style="color: white; display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.9em;">
+                            <input type="checkbox" checked onchange="togglePath('self-discovery', this)" style="transform: scale(1.1);">
+                            Self Discovery
+                        </label>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="phase2-controls" class="phase-controls" style="display: none;">
+                <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 12px; margin-bottom: 15px;">
+                    <div style="color: white; font-size: 0.9em; margin-bottom: 10px; opacity: 0.8;">Filter Phase 2 paths:</div>
+                    <div style="display: flex; justify-content: center; gap: 20px; flex-wrap: wrap;">
+                        <label style="color: white; display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.9em;">
+                            <input type="checkbox" checked onchange="togglePath('physical-visits', this)" style="transform: scale(1.1);">
+                            In-Person Visits
+                        </label>
+                        <label style="color: white; display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.9em;">
+                            <input type="checkbox" checked onchange="togglePath('direct-mail', this)" style="transform: scale(1.1);">
+                            Direct Mail
+                        </label>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="margin-top: 20px;">
+                <label style="color: white; display: flex; align-items: center; justify-content: center; gap: 10px; cursor: pointer;">
+                    <input type="checkbox" id="toggleDetails" checked onchange="toggleDetailBoxes()" style="transform: scale(1.2);">
+                    <span>Show Psychology & Friction Points</span>
+                </label>
+            </div>
+        </div>
+        
+        <div id="phase1-info" class="path-info">
+            <h3>Phase 1: Remote Outreach Strategy</h3>
+            <p><strong>Approach:</strong> Start with efficient, low-touch methods to capture early adopters and create initial momentum</p>
+            <p><strong>Timeline:</strong> Week 1-2 of outreach campaign</p>
+            <p><strong>Success metric:</strong> If you get 15-20 core businesses from Phase 1, you can launch. If not, escalate to Phase 2.</p>
+        </div>
+        
+        <div id="phase2-info" class="path-info">
+            <h3>Phase 2: Physical Escalation Strategy</h3>
+            <p><strong>When to use:</strong> Phase 1 didn't reach minimum launch threshold (15-20 businesses)</p>
+            <p><strong>Target:</strong> Must-have businesses that didn't respond to remote outreach</p>
+            <p><strong>ROI consideration:</strong> Higher time investment but much higher conversion rates</p>
+        </div>
+        
+        <div id="all-phases-info" class="path-info active">
+            <h3>Complete Business Journey</h3>
+            <p><strong>Overview:</strong> Full journey from initial outreach through successful page enhancement</p>
+            <p><strong>Strategy:</strong> Phase 1 for broad reach, Phase 2 for targeted conversion, followed by gradual enhancement</p>
+            <p><strong>Timeline:</strong> 2-4 weeks initial launch, ongoing enhancement prompts over months</p>
+        </div>
+        
+        <div class="flowchart" id="flowchart">
+            
+            <div class="phase-divider">
+                <div class="phase-label">PHASE 1: REMOTE OUTREACH (Start Here)</div>
+            </div>
+            
+            <!-- Phase 1 Entry Points -->
+            <div class="flow-level">
+                <div class="flow-node mass-outreach all-paths" data-path="mass-outreach">
+                    <div class="node-type mass">Mass Outreach</div>
+                    <div class="node-title">Newsletter/Facebook/Email Blast</div>
+                    <div class="node-description">"New Business Directory Launching! Join 50+ local businesses already signed up. Click here to get listed."</div>
+                    <div class="emotion-box">
+                        "Another chamber announcement... I'll look at this later" (but probably won't)
+                    </div>
+                    <div class="pain-point">
+                        <strong>Friction:</strong> Easy to ignore, no urgency, gets buried in other messages, feels like spam
+                    </div>
+                </div>
+                
+                <div class="flow-node personal-outreach all-paths" data-path="personal-outreach">
+                    <div class="node-type personal">Personal Call/Text</div>
+                    <div class="node-title">Champion Calls Your Business Directly</div>
+                    <div class="node-description">"Hi Sarah, this is [Name] from the chamber. I'm calling because we're launching a directory to help tourists find businesses like yours..."</div>
+                    <div class="emotion-box">
+                        "Oh, [Name] is calling me personally. This must be important."
+                    </div>
+                    <div class="success-point">
+                        <strong>Success factor:</strong> Personal relationship, feels important, immediate Q&A opportunity
+                    </div>
+                </div>
+                
+                <div class="flow-node word-of-mouth all-paths" data-path="word-of-mouth">
+                    <div class="node-type word">Peer Recommendation</div>
+                    <div class="node-title">Business Owner Tells You Directly</div>
+                    <div class="node-description">"Hey, you should join the town directory - I got three customers from it this month and it was super easy!"</div>
+                    <div class="emotion-box">
+                        "If it worked for [Business], and they're telling me directly, it must actually work"
+                    </div>
+                    <div class="success-point">
+                        <strong>Power factor:</strong> Peer trust + specific success story + personal recommendation
+                    </div>
+                </div>
+                
+                <div class="flow-node self-discovery all-paths" data-path="self-discovery">
+                    <div class="node-type self">Self Discovery</div>
+                    <div class="node-title">Finds Directory Online</div>
+                    <div class="node-description">Discovers directory while researching local competition, sees other businesses listed, or finds it through Google search.</div>
+                    <div class="emotion-box">
+                        "This looks professional and my competitors are on here. How do I get listed?"
+                    </div>
+                    <div class="success-point">
+                        <strong>Advantage:</strong> Self-motivated, proactive, already convinced of value
+                    </div>
+                </div>
+            </div>
+            
+            <div class="phase-divider">
+                <div class="phase-label">EVALUATION PHASE</div>
+            </div>
+            
+            <!-- Psychology Split by Outreach Type -->
+            <div class="flow-level">
+                <div class="flow-node mass-outreach all-paths">
+                    <div class="node-type psychology">Mass Psychology</div>
+                    <div class="node-title">Low Engagement Decision</div>
+                    <div class="node-description">Business owner gives it minimal attention. Quick scan to decide if worth investigating further.</div>
+                    <div class="emotion-box">
+                        "Is this another thing that costs money? Do I have time to figure this out?"
+                    </div>
+                    <div class="pain-point">
+                        <strong>Major barrier:</strong> No immediate way to get questions answered, assumes complexity/cost
+                    </div>
+                </div>
+                
+                <div class="flow-node personal-outreach all-paths">
+                    <div class="node-type psychology">Personal Psychology</div>
+                    <div class="node-title">High Engagement Decision</div>
+                    <div class="node-description">Real conversation happens. Questions get answered immediately. Champion builds confidence and urgency.</div>
+                    <div class="emotion-box">
+                        "Since [Name] took the time to call me personally, this must be legitimate"
+                    </div>
+                    <div class="success-point">
+                        <strong>Conversion driver:</strong> Immediate objection handling, relationship trust, can ask questions
+                    </div>
+                </div>
+                
+                <div class="flow-node word-of-mouth self-discovery all-paths">
+                    <div class="node-type psychology">High Intent</div>
+                    <div class="node-title">Already Pre-Convinced</div>
+                    <div class="node-description">Evaluation is quick because trust/value is already established through peer recommendation or self-research.</div>
+                    <div class="emotion-box">
+                        "I already know I want to do this, just need to figure out how"
+                    </div>
+                    <div class="success-point">
+                        <strong>Speed factor:</strong> Skips skepticism phase, moves quickly to action
+                    </div>
+                </div>
+            </div>
+            
+            <div class="phase-divider">
+                <div class="phase-label">ACTION DECISION PHASE</div>
+            </div>
+            
+            <!-- Decision Outcomes by Type -->
+            <div class="flow-level">
+                <div class="flow-node mass-outreach all-paths">
+                    <div class="node-type action">Mass: Proceed</div>
+                    <div class="node-title">Clicks Link & Starts Form</div>
+                    <div class="node-description">The small percentage who are immediately interested or self-motivated click through and start the form.</div>
+                    <div class="emotion-box">
+                        "Let me see what this is about... oh it's actually pretty simple"
+                    </div>
+                    <div class="success-point">
+                        <strong>Self-selector trait:</strong> Early adopters, tech-comfortable, already convinced of digital marketing value
+                    </div>
+                </div>
+                
+                <div class="flow-node personal-outreach all-paths">
+                    <div class="node-type action">Personal: Proceed</div>
+                    <div class="node-title">Agrees During Call</div>
+                    <div class="node-description">Champion addresses concerns in real-time, provides form link, often offers to help with completion.</div>
+                    <div class="emotion-box">
+                        "If [Champion] says it's only 10 minutes and other businesses are doing it..."
+                    </div>
+                    <div class="success-point">
+                        <strong>Conversion drivers:</strong> Personal accountability, immediate support offer, objection handling
+                    </div>
+                </div>
+                
+                <div class="flow-node word-of-mouth self-discovery all-paths">
+                    <div class="node-type action">High Intent: Proceed</div>
+                    <div class="node-title">Enthusiastic Yes</div>
+                    <div class="node-description">Quick agreement because value is already proven (word-of-mouth) or self-evident (self-discovery).</div>
+                    <div class="success-point">
+                        <strong>Fast track:</strong> Minimal friction, often complete form same day
+                    </div>
+                </div>
+            </div>
+            
+            <div class="phase-divider">
+                <div class="phase-label">PHASE 2: PHYSICAL ESCALATION (When Phase 1 Response is Low)</div>
+            </div>
+            
+            <!-- Phase 2 Entry Points -->
+            <div class="flow-level">
+                <div class="flow-node physical-visits all-paths" data-path="physical-visits">
+                    <div class="node-type" style="background: linear-gradient(135deg, #f39c12, #e67e22);">Physical Visit</div>
+                    <div class="node-title">Champion Visits Business In-Person</div>
+                    <div class="node-description">Champion shows up with tablet and forms. "Hi, I'm [Name] from the chamber. I wanted to stop by personally about our new business directory..."</div>
+                    <div class="emotion-box">
+                        "Wow, they came here personally? This must be really important."
+                    </div>
+                    <div class="success-point">
+                        <strong>Power factor:</strong> Physical presence = maximum urgency, immediate completion, relationship building
+                    </div>
+                </div>
+                
+                <div class="flow-node direct-mail all-paths" data-path="direct-mail">
+                    <div class="node-type" style="background: linear-gradient(135deg, #e67e22, #d35400);">Direct Mail</div>
+                    <div class="node-title">Professional Mailer + QR Code</div>
+                    <div class="node-description">High-quality postcard with local business photos, QR code for easy form access, Champion's direct phone number for support.</div>
+                    <div class="emotion-box">
+                        "This looks official and professional. Other businesses are really on here."
+                    </div>
+                    <div class="success-point">
+                        <strong>Advantage:</strong> Physical mail harder to ignore than email, QR code reduces friction, professional appearance
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Phase 2 Psychology -->
+            <div class="flow-level">
+                <div class="flow-node physical-visits all-paths">
+                    <div class="node-type psychology">High Pressure Decision</div>
+                    <div class="node-title">Hard to Say No in Person</div>
+                    <div class="node-description">Champion is right there, can answer questions immediately, form gets completed on the spot with help.</div>
+                    <div class="emotion-box">
+                        "They took the time to come here personally - I should at least listen."
+                    </div>
+                    <div class="success-point">
+                        <strong>Immediate completion:</strong> Champion fills out form together, takes photos on-site, no follow-up needed
+                    </div>
+                </div>
+                
+                <div class="flow-node direct-mail all-paths">
+                    <div class="node-type psychology">Physical Urgency</div>
+                    <div class="node-title">Mailer Feels More Official</div>
+                    <div class="node-description">Physical mail implies investment and importance. QR code makes response easy, Champion's phone number provides support.</div>
+                    <div class="emotion-box">
+                        "They spent money to mail this to me specifically. Maybe I should check it out."
+                    </div>
+                    <div class="pain-point">
+                        <strong>Still some friction:</strong> Need to scan QR code, still requires self-motivation, may delay action
+                    </div>
+                </div>
+            </div>
+            
+            <div class="phase-divider">
+                <div class="phase-label">INITIAL FORM & BASIC PAGE (Quick Launch)</div>
+            </div>
+            
+            <!-- Initial Form Completion -->
+            <div class="flow-level">
+                <div class="flow-node mass-outreach personal-outreach word-of-mouth self-discovery physical-visits direct-mail all-paths">
+                    <div class="node-type action">Initial Form</div>
+                    <div class="node-title">Basic Info to Get Started</div>
+                    <div class="node-description">Essential details only: business name, address, phone, hours, one photo, short description. Designed for quick completion.</div>
+                    <div class="emotion-box">
+                        "Oh, this really is just 10 minutes - just the basics to get me listed"
+                    </div>
+                    <div class="success-point">
+                        <strong>Low friction design:</strong> Minimal required fields, get them live fast, enhance later
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flow-level">
+                <div class="flow-node mass-outreach personal-outreach word-of-mouth self-discovery physical-visits direct-mail all-paths">
+                    <div class="node-type success">Basic Page Live</div>
+                    <div class="node-title">Simple Directory Listing Goes Live</div>
+                    <div class="node-description">Professional but basic page with core business info. Functional and findable, but room to grow.</div>
+                    <div class="emotion-box">
+                        "Great, I'm on there! This looks good and I can always add more later."
+                    </div>
+                    <div class="success-point">
+                        <strong>Quick win:</strong> Business owner sees immediate value, builds confidence in the platform
+                    </div>
+                </div>
+            </div>
+            
+            <div class="phase-divider">
+                <div class="phase-label">ENHANCEMENT JOURNEY (Level Up Over Time)</div>
+            </div>
+            
+            <!-- Enhancement Path -->
+            <div class="flow-level">
+                <div class="flow-node mass-outreach personal-outreach word-of-mouth self-discovery physical-visits direct-mail all-paths">
+                    <div class="node-type outcome" style="background: linear-gradient(135deg, #9b59b6, #8e44ad);">Enhancement Prompts</div>
+                    <div class="node-title">Gentle Nudges to Level Up</div>
+                    <div class="node-description">Soft prompts via email: "Add more photos," "Include special offers," "Tell your story." Less aggressive than initial outreach.</div>
+                    <div class="emotion-box">
+                        "I should probably add more details since people are actually finding me through this"
+                    </div>
+                    <div class="success-point">
+                        <strong>Post-launch timing:</strong> Business owner has seen value, more willing to invest time in improvements
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flow-level">
+                <div class="flow-node mass-outreach personal-outreach word-of-mouth self-discovery physical-visits direct-mail all-paths">
+                    <div class="node-type outcome" style="background: linear-gradient(135deg, #e74c3c, #c0392b);">Enhanced Page</div>
+                    <div class="node-title">Full-Featured Business Profile</div>
+                    <div class="node-description">Complete listing with photo gallery, detailed descriptions, special offers, events, reviews, social links.</div>
+                    <div class="emotion-box">
+                        "Now this really showcases what we're all about - looks amazing!"
+                    </div>
+                    <div class="success-point">
+                        <strong>Advocacy amplified:</strong> Enhanced businesses become the strongest referral sources and success stories
+                    </div>
+                </div>
+            </div>
+            
+            <div style="background: rgba(155, 89, 182, 0.2); border: 2px solid rgba(155, 89, 182, 0.3); border-radius: 15px; padding: 20px; margin: 30px auto; max-width: 600px; color: white; text-align: center;">
+                <h4 style="margin-top: 0; color: #9b59b6;">Two-Tier Success Strategy</h4>
+                <p style="margin-bottom: 10px;"><strong>Tier 1:</strong> Get businesses live quickly with basic info (high completion rate)</p>
+                <p style="margin-bottom: 10px;"><strong>Tier 2:</strong> Enhance over time when they see value (higher engagement rate)</p>
+                <p style="margin-bottom: 0;"><em>Note: Detailed enhancement journey & strategies covered in separate workflow</em></p>
+            </div>
+        </div>
+        
+        <div class="comparison-stats">
+            <h3>Phase 1 vs Phase 2: Strategic Escalation</h3>
+            
+            <div style="background: rgba(74, 144, 226, 0.2); padding: 20px; border-radius: 12px; margin-bottom: 20px; border: 2px solid rgba(74, 144, 226, 0.3);">
+                <h4>Phase 1: Remote Outreach (Start Here)</h4>
+                <div class="comparison-grid">
+                    <div class="comparison-column">
+                        <h4>Mass Outreach</h4>
+                        <div class="stat-row">
+                            <span>Reach:</span>
+                            <span><strong>High volume</strong></span>
+                        </div>
+                        <div class="stat-row">
+                            <span>Champion Time:</span>
+                            <span><strong>Very efficient</strong></span>
+                        </div>
+                        <div class="stat-row">
+                            <span>Response:</span>
+                            <span><strong>Lower engagement</strong></span>
+                        </div>
+                        <div class="stat-row">
+                            <span>Who Responds:</span>
+                            <span><strong>Early adopters</strong></span>
+                        </div>
+                    </div>
+                    
+                    <div class="comparison-column">
+                        <h4>Personal Outreach</h4>
+                        <div class="stat-row">
+                            <span>Reach:</span>
+                            <span><strong>Lower volume</strong></span>
+                        </div>
+                        <div class="stat-row">
+                            <span>Champion Time:</span>
+                            <span><strong>Time intensive</strong></span>
+                        </div>
+                        <div class="stat-row">
+                            <span>Response:</span>
+                            <span><strong>Higher engagement</strong></span>
+                        </div>
+                        <div class="stat-row">
+                            <span>Who Responds:</span>
+                            <span><strong>Skeptical businesses</strong></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="background: rgba(243, 156, 18, 0.2); padding: 20px; border-radius: 12px; margin-bottom: 20px; border: 2px solid rgba(243, 156, 18, 0.3);">
+                <h4>Phase 2: Physical Escalation (When Phase 1 is Insufficient)</h4>
+                <div class="comparison-grid">
+                    <div class="comparison-column">
+                        <h4>Physical Visits</h4>
+                        <div class="stat-row">
+                            <span>When to Use:</span>
+                            <span><strong>Key businesses only</strong></span>
+                        </div>
+                        <div class="stat-row">
+                            <span>Champion Time:</span>
+                            <span><strong>Very high per business</strong></span>
+                        </div>
+                        <div class="stat-row">
+                            <span>Response:</span>
+                            <span><strong>Highest conversion</strong></span>
+                        </div>
+                        <div class="stat-row">
+                            <span>Advantage:</span>
+                            <span><strong>Immediate completion</strong></span>
+                        </div>
+                    </div>
+                    
+                    <div class="comparison-column">
+                        <h4>Direct Mail</h4>
+                        <div class="stat-row">
+                            <span>When to Use:</span>
+                            <span><strong>Broad re-engagement</strong></span>
+                        </div>
+                        <div class="stat-row">
+                            <span>Champion Time:</span>
+                            <span><strong>Design + mail prep</strong></span>
+                        </div>
+                        <div class="stat-row">
+                            <span>Response:</span>
+                            <span><strong>Higher than email</strong></span>
+                        </div>
+                        <div class="stat-row">
+                            <span>Advantage:</span>
+                            <span><strong>Professional appearance</strong></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="margin-top: 25px; padding: 20px; background: rgba(255,255,255,0.1); border-radius: 10px;">
+                <h4>Strategic Decision Framework</h4>
+                <p><strong>Start with Phase 1:</strong> Mass outreach + selective personal calls capture early adopters efficiently</p>
+                <p><strong>Evaluate after 2 weeks:</strong> If less than 15-20 core businesses signed up, escalate to Phase 2</p>
+                <p><strong>Phase 2 targeting:</strong> Focus on must-have businesses (restaurants, main street retail, visitor services)</p>
+                <p><strong>ROI consideration:</strong> Physical visits worth it for key businesses, direct mail for broader re-engagement</p>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        function showAllPhases(buttonElement) {
+            // Reset all phase buttons
+            const phaseButtons = document.querySelectorAll('.phase-button');
+            phaseButtons.forEach(btn => btn.classList.remove('active'));
+            
+            // Activate the show all button
+            if (buttonElement) {
+                buttonElement.classList.add('active');
+            }
+            
+            // Show all phases controls and hide individual phase controls
+            const allPhasesControls = document.getElementById('all-phases-controls');
+            const phase1Controls = document.getElementById('phase1-controls');
+            const phase2Controls = document.getElementById('phase2-controls');
+            
+            allPhasesControls.style.display = 'block';
+            phase1Controls.style.display = 'none';
+            phase2Controls.style.display = 'none';
+            
+            // Show all nodes
+            const allNodes = document.querySelectorAll('.flow-node');
+            allNodes.forEach(node => node.classList.add('active-path'));
+            
+            // Hide all info boxes first, then show all phases info
+            const infoBoxes = document.querySelectorAll('.path-info');
+            infoBoxes.forEach(box => box.classList.remove('active'));
+            document.getElementById('all-phases-info').classList.add('active');
+        }
+        
+        function showPhase(phase, buttonElement) {
+            // Reset all phase buttons
+            const phaseButtons = document.querySelectorAll('.phase-button');
+            phaseButtons.forEach(btn => btn.classList.remove('active'));
+            
+            // Activate clicked phase button
+            if (buttonElement) {
+                buttonElement.classList.add('active');
+            }
+            
+            // Show/hide phase controls
+            const allPhasesControls = document.getElementById('all-phases-controls');
+            const phase1Controls = document.getElementById('phase1-controls');
+            const phase2Controls = document.getElementById('phase2-controls');
+            
+            // Hide all info boxes first
+            const infoBoxes = document.querySelectorAll('.path-info');
+            infoBoxes.forEach(box => box.classList.remove('active'));
+            
+            if (phase === 'phase1') {
+                allPhasesControls.style.display = 'none';
+                phase1Controls.style.display = 'block';
+                phase2Controls.style.display = 'none';
+                // Show all Phase 1 nodes by default
+                showAllPhase1Nodes();
+                // Show Phase 1 info
+                document.getElementById('phase1-info').classList.add('active');
+            } else if (phase === 'phase2') {
+                allPhasesControls.style.display = 'none';
+                phase1Controls.style.display = 'none';
+                phase2Controls.style.display = 'block';
+                // Show all Phase 2 nodes by default
+                showAllPhase2Nodes();
+                // Show Phase 2 info
+                document.getElementById('phase2-info').classList.add('active');
+            }
+        }
+        
+        function showAllPhase1Nodes() {
+            const allNodes = document.querySelectorAll('.flow-node');
+            allNodes.forEach(node => {
+                // Show Phase 1 specific nodes and universal nodes
+                if (node.classList.contains('mass-outreach') || 
+                    node.classList.contains('personal-outreach') || 
+                    node.classList.contains('word-of-mouth') || 
+                    node.classList.contains('self-discovery') ||
+                    (node.classList.contains('mass-outreach') && node.classList.contains('personal-outreach'))) {
+                    node.classList.add('active-path');
+                } else {
+                    node.classList.remove('active-path');
+                }
+            });
+        }
+        
+        function showAllPhase2Nodes() {
+            const allNodes = document.querySelectorAll('.flow-node');
+            allNodes.forEach(node => {
+                // Show Phase 2 specific nodes and universal nodes
+                if (node.classList.contains('physical-visits') || 
+                    node.classList.contains('direct-mail') ||
+                    (node.classList.contains('physical-visits') && node.classList.contains('direct-mail'))) {
+                    node.classList.add('active-path');
+                } else {
+                    node.classList.remove('active-path');
+                }
+            });
+        }
+        
+        function togglePath(pathType, checkbox) {
+            const specificNodes = document.querySelectorAll('.flow-node.' + pathType);
+            
+            if (checkbox.checked) {
+                // Show this specific path
+                specificNodes.forEach(node => node.classList.add('active-path'));
+            } else {
+                // Hide this specific path
+                specificNodes.forEach(node => node.classList.remove('active-path'));
+            }
+            
+            // Always keep universal nodes visible if any path is checked in current phase
+            const currentPhase = document.querySelector('.phase-controls:not([style*="none"])');
+            const anyChecked = currentPhase?.querySelector('input[onchange*="togglePath"]:checked');
+            
+            if (anyChecked) {
+                // Check which controls are active and show appropriate universal nodes
+                if (currentPhase.id === 'all-phases-controls') {
+                    // Show all universal nodes for all phases view
+                    const universalNodes = document.querySelectorAll(
+                        '.flow-node[class*="mass-outreach"][class*="personal-outreach"], ' +
+                        '.flow-node[class*="physical-visits"][class*="direct-mail"]'
+                    );
+                    universalNodes.forEach(node => node.classList.add('active-path'));
+                } else if (currentPhase.id === 'phase1-controls') {
+                    const universalNodes = document.querySelectorAll('.flow-node[class*="mass-outreach"][class*="personal-outreach"]');
+                    universalNodes.forEach(node => node.classList.add('active-path'));
+                } else if (currentPhase.id === 'phase2-controls') {
+                    const universalNodes = document.querySelectorAll('.flow-node[class*="physical-visits"][class*="direct-mail"]');
+                    universalNodes.forEach(node => node.classList.add('active-path'));
+                }
+            }
+        }
+        
+        function toggleDetailBoxes() {
+            const checkbox = document.getElementById('toggleDetails');
+            const flowchart = document.getElementById('flowchart');
+            
+            if (checkbox.checked) {
+                flowchart.classList.remove('hide-details');
+            } else {
+                flowchart.classList.add('hide-details');
+            }
+        }
+        
+        // Initialize with All Phases view
+        window.onload = function() {
+            const showAllButton = document.querySelector('.phase-button[onclick*="showAllPhases"]');
+            showAllPhases(showAllButton);
+        };
+    </script>
+</body>
+</html>
